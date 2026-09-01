@@ -1,4 +1,22 @@
 cmake_minimum_required(VERSION 3.16)
+
+# Prefer clang/clang++ over the default (usually gcc/g++) when available,
+# unless the caller already picked a compiler explicitly (-DCMAKE_CXX_COMPILER=...
+# or a CXX/CC environment variable) — this must run before project() since
+# that's what actually selects the compiler.
+if(NOT DEFINED CMAKE_CXX_COMPILER AND NOT DEFINED ENV{CXX})
+    find_program(CLANGXX_EXECUTABLE NAMES clang++)
+    if(CLANGXX_EXECUTABLE)
+        set(CMAKE_CXX_COMPILER "${CLANGXX_EXECUTABLE}")
+    endif()
+endif()
+if(NOT DEFINED CMAKE_C_COMPILER AND NOT DEFINED ENV{CC})
+    find_program(CLANG_EXECUTABLE NAMES clang)
+    if(CLANG_EXECUTABLE)
+        set(CMAKE_C_COMPILER "${CLANG_EXECUTABLE}")
+    endif()
+endif()
+
 project(termx LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
