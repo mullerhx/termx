@@ -49,6 +49,16 @@ PreferencesDialog::PreferencesDialog(wxWindow* parent, const TerminalSettings& s
     grid->Add(new wxStaticText(this, wxID_ANY, "Opacity (%):"), 0, wxALIGN_CENTRE_VERTICAL);
     grid->Add(m_opacity, 1, wxEXPAND);
 
+    m_nextTabShortcut = new ShortcutPicker(this, settings.nextTabAccelFlags,
+                                           settings.nextTabAccelKeyCode);
+    grid->Add(new wxStaticText(this, wxID_ANY, "Next tab:"), 0, wxALIGN_CENTRE_VERTICAL);
+    grid->Add(m_nextTabShortcut, 1, wxEXPAND);
+
+    m_prevTabShortcut = new ShortcutPicker(this, settings.prevTabAccelFlags,
+                                           settings.prevTabAccelKeyCode);
+    grid->Add(new wxStaticText(this, wxID_ANY, "Previous tab:"), 0, wxALIGN_CENTRE_VERTICAL);
+    grid->Add(m_prevTabShortcut, 1, wxEXPAND);
+
     auto* topSizer = new wxBoxSizer(wxVERTICAL);
     topSizer->Add(grid, 1, wxEXPAND | wxALL, 12);
 
@@ -72,6 +82,21 @@ PreferencesDialog::PreferencesDialog(wxWindow* parent, const TerminalSettings& s
     topSizer->Add(CreateSeparatedButtonSizer(wxOK | wxCANCEL), 0, wxEXPAND | wxALL, 12);
 
     SetSizerAndFit(topSizer);
+
+    Bind(wxEVT_BUTTON, &PreferencesDialog::OnOk, this, wxID_OK);
+}
+
+void PreferencesDialog::OnOk(wxCommandEvent&)
+{
+    if (m_nextTabShortcut->GetFlags() == m_prevTabShortcut->GetFlags() &&
+        m_nextTabShortcut->GetKeyCode() == m_prevTabShortcut->GetKeyCode())
+    {
+        wxMessageBox("Next tab and Previous tab can't use the same shortcut.",
+                     "termx — Preferences", wxOK | wxICON_WARNING, this);
+        return;
+    }
+
+    EndModal(wxID_OK);
 }
 
 TerminalSettings PreferencesDialog::GetSettings() const
@@ -86,5 +111,9 @@ TerminalSettings PreferencesDialog::GetSettings() const
     settings.toolbarShowLabels = m_toolbarShowLabels->GetValue();
     settings.toolbarLargeIcons = m_toolbarLargeIcons->GetValue();
     settings.showTerminalScrollbar = m_showTerminalScrollbar->GetValue();
+    settings.nextTabAccelFlags = m_nextTabShortcut->GetFlags();
+    settings.nextTabAccelKeyCode = m_nextTabShortcut->GetKeyCode();
+    settings.prevTabAccelFlags = m_prevTabShortcut->GetFlags();
+    settings.prevTabAccelKeyCode = m_prevTabShortcut->GetKeyCode();
     return settings;
 }

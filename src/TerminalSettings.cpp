@@ -46,6 +46,11 @@ void TerminalSettings::Load()
     cfg.Read("/Toolbar/LargeIcons", &toolbarLargeIcons, toolbarLargeIcons);
 
     cfg.Read("/Terminal/ShowScrollbar", &showTerminalScrollbar, showTerminalScrollbar);
+
+    cfg.Read("/Shortcuts/NextTabFlags", &nextTabAccelFlags, nextTabAccelFlags);
+    cfg.Read("/Shortcuts/NextTabKeyCode", &nextTabAccelKeyCode, nextTabAccelKeyCode);
+    cfg.Read("/Shortcuts/PrevTabFlags", &prevTabAccelFlags, prevTabAccelFlags);
+    cfg.Read("/Shortcuts/PrevTabKeyCode", &prevTabAccelKeyCode, prevTabAccelKeyCode);
 }
 
 void TerminalSettings::Save() const
@@ -66,6 +71,11 @@ void TerminalSettings::Save() const
 
     cfg.Write("/Toolbar/ShowLabels", toolbarShowLabels);
     cfg.Write("/Toolbar/LargeIcons", toolbarLargeIcons);
+
+    cfg.Write("/Shortcuts/NextTabFlags", nextTabAccelFlags);
+    cfg.Write("/Shortcuts/NextTabKeyCode", nextTabAccelKeyCode);
+    cfg.Write("/Shortcuts/PrevTabFlags", prevTabAccelFlags);
+    cfg.Write("/Shortcuts/PrevTabKeyCode", prevTabAccelKeyCode);
 
     cfg.Flush();
 }

@@ -44,6 +44,8 @@ private:
     void OnToggleProperties(wxCommandEvent& event);
     void OnPaneClose(wxAuiManagerEvent& event);
     void OnNotebookPageClose(wxAuiNotebookEvent& event);
+    void OnNextTab(wxCommandEvent& event);
+    void OnPreviousTab(wxCommandEvent& event);
 
     TerminalPanel* CurrentTerminal() const;
     void AddTerminalTab(const wxString& title, const wxArrayString& argv = wxArrayString(),
@@ -54,6 +56,7 @@ private:
     void PopulatePropertyGridForConnection(int groupIndex, int connectionIndex);
     void ClearPropertyGrid();
     void BuildToolBar();
+    void ApplyShortcuts();
 
     wxToolBar* m_toolBar = nullptr;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/wx.h>
+#include <wx/accel.h>
 
 struct TerminalSettings
 {
@@ -17,6 +18,14 @@ struct TerminalSettings
 
     // Per-terminal (per split pane) scrollbar.
     bool showTerminalScrollbar = false;
+
+    // Tab-switching shortcuts. Stored as a wxAcceleratorEntry flags/keycode
+    // pair rather than a display string, so there's no parsing ambiguity —
+    // wxAcceleratorEntry::ToString() derives the display form on demand.
+    int nextTabAccelFlags = wxACCEL_CTRL;
+    int nextTabAccelKeyCode = WXK_TAB;
+    int prevTabAccelFlags = wxACCEL_CTRL | wxACCEL_SHIFT;
+    int prevTabAccelKeyCode = WXK_TAB;
 
     // Persists to/from the same "termx" config directory ConnectionStore
     // uses, as its own file — so settings survive restarts. Load() leaves

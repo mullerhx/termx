@@ -4,6 +4,7 @@
 #include <wx/clrpicker.h>
 #include <wx/spinctrl.h>
 
+#include "ShortcutPicker.h"
 #include "TerminalSettings.h"
 
 class PreferencesDialog : public wxDialog
@@ -14,6 +15,8 @@ public:
     TerminalSettings GetSettings() const;
 
 private:
+    void OnOk(wxCommandEvent& event);
+
     wxComboBox* m_fontFamily = nullptr;
     wxSpinCtrl* m_fontSize = nullptr;
     wxSpinCtrlDouble* m_lineSpacing = nullptr;
@@ -23,4 +26,6 @@ private:
     wxCheckBox* m_toolbarShowLabels = nullptr;
     wxCheckBox* m_toolbarLargeIcons = nullptr;
     wxCheckBox* m_showTerminalScrollbar = nullptr;
+    ShortcutPicker* m_nextTabShortcut = nullptr;
+    ShortcutPicker* m_prevTabShortcut = nullptr;
 };

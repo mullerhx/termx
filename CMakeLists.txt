@@ -60,6 +60,7 @@ add_executable(termx
     src/GroupColorTabArt.cpp
     src/GroupDialog.cpp
     src/ReverseShellDialog.cpp
+    src/ShortcutPicker.cpp
     src/VaultCrypto.cpp
     src/VaultUnlockDialog.cpp
 )
