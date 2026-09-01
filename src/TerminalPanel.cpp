@@ -1,4 +1,5 @@
 #include "TerminalPanel.h"
+#include "TerminalSettings.h"
 
 #include <wx/aui/auibook.h>
 #include <wx/splitter.h>
@@ -11,6 +12,68 @@
 
 #include <utility>
 #include <vector>
+
+namespace
+{
+    // Translates the small set of non-printable wx key codes a shortcut is
+    // realistically assigned to into their GDK equivalent, so a GTK-level
+    // key-press-event (see the "key-press-event" handler below) can be
+    // compared against a TerminalSettings shortcut captured via ShortcutPicker
+    // (which records it in wx's domain). Printable ASCII (letters, digits,
+    // punctuation, space) needs no translation — wx and GDK agree on those.
+    guint WxKeyCodeToGdkKeyval(int wxKeyCode)
+    {
+        switch (wxKeyCode)
+        {
+            case WXK_TAB: return GDK_KEY_Tab;
+            case WXK_RETURN: return GDK_KEY_Return;
+            case WXK_ESCAPE: return GDK_KEY_Escape;
+            case WXK_SPACE: return GDK_KEY_space;
+            case WXK_BACK: return GDK_KEY_BackSpace;
+            case WXK_DELETE: return GDK_KEY_Delete;
+            case WXK_INSERT: return GDK_KEY_Insert;
+            case WXK_HOME: return GDK_KEY_Home;
+            case WXK_END: return GDK_KEY_End;
+            case WXK_PAGEUP: return GDK_KEY_Page_Up;
+            case WXK_PAGEDOWN: return GDK_KEY_Page_Down;
+            case WXK_LEFT: return GDK_KEY_Left;
+            case WXK_RIGHT: return GDK_KEY_Right;
+            case WXK_UP: return GDK_KEY_Up;
+            case WXK_DOWN: return GDK_KEY_Down;
+            case WXK_F1: return GDK_KEY_F1;
+            case WXK_F2: return GDK_KEY_F2;
+            case WXK_F3: return GDK_KEY_F3;
+            case WXK_F4: return GDK_KEY_F4;
+            case WXK_F5: return GDK_KEY_F5;
+            case WXK_F6: return GDK_KEY_F6;
+            case WXK_F7: return GDK_KEY_F7;
+            case WXK_F8: return GDK_KEY_F8;
+            case WXK_F9: return GDK_KEY_F9;
+            case WXK_F10: return GDK_KEY_F10;
+            case WXK_F11: return GDK_KEY_F11;
+            case WXK_F12: return GDK_KEY_F12;
+            default: return static_cast<guint>(wxKeyCode);
+        }
+    }
+
+    bool MatchesShortcut(GdkEventKey* event, int accelFlags, int accelKeyCode)
+    {
+        guint expectedModifiers = 0;
+        if (accelFlags & wxACCEL_CTRL) expectedModifiers |= GDK_CONTROL_MASK;
+        if (accelFlags & wxACCEL_SHIFT) expectedModifiers |= GDK_SHIFT_MASK;
+        if (accelFlags & wxACCEL_ALT) expectedModifiers |= GDK_MOD1_MASK;
+
+        const guint modifiers = event->state & gtk_accelerator_get_default_mod_mask();
+        if (modifiers != expectedModifiers)
+            return false;
+
+        // Letter shortcuts are captured/stored as uppercase (wx's convention
+        // for KeyDown events), but GDK reports the lowercase keyval whenever
+        // Shift isn't held — normalize both sides before comparing.
+        return gdk_keyval_to_upper(event->keyval) ==
+               gdk_keyval_to_upper(WxKeyCodeToGdkKeyval(accelKeyCode));
+    }
+}
 
 TerminalPanel::TerminalPanel(wxWindow* parent, const wxArrayString& argv, TerminalKind kind)
     : wxPanel(parent, wxID_ANY), m_kind(kind), m_argv(argv)
@@ -183,6 +246,35 @@ TerminalPanel::TerminalPanel(wxWindow* parent, const wxArrayString& argv, Termin
             }
 
             return FALSE;
+        }),
+        this);
+
+    // MainFrame's wxAcceleratorTable only ever sees key events that reach
+    // wx's own event loop — VTE is a foreign GtkWidget whose default
+    // key-press-event handler swallows essentially every keystroke as
+    // terminal input first, so the configurable next/previous-tab shortcuts
+    // need the same direct-intercept treatment as copy/paste above. Matched
+    // presses are re-fired as a wxEVT_MENU at the top-level frame, the same
+    // event the accelerator table itself would have generated.
+    g_signal_connect(m_vte, "key-press-event",
+        G_CALLBACK(+[](GtkWidget*, GdkEventKey* event, gpointer data) -> gboolean {
+            auto* panel = static_cast<TerminalPanel*>(data);
+            const TerminalSettings& settings = panel->m_settings;
+
+            wxWindowID commandId = wxID_ANY;
+            if (MatchesShortcut(event, settings.nextTabAccelFlags, settings.nextTabAccelKeyCode))
+                commandId = kNextTabCommandId;
+            else if (MatchesShortcut(event, settings.prevTabAccelFlags, settings.prevTabAccelKeyCode))
+                commandId = kPreviousTabCommandId;
+            else
+                return FALSE;
+
+            if (wxWindow* top = wxGetTopLevelParent(panel))
+            {
+                wxCommandEvent commandEvent(wxEVT_MENU, commandId);
+                top->GetEventHandler()->ProcessEvent(commandEvent);
+            }
+            return TRUE;
         }),
         this);
 

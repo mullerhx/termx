@@ -42,8 +42,6 @@ enum
     ID_TreeConnect,
     ID_ToggleTree,
     ID_ToggleProperties,
-    ID_NextTab,
-    ID_PreviousTab,
     ID_About = wxID_ABOUT,
     ID_Exit = wxID_EXIT,
     ID_Preferences = wxID_PREFERENCES,
@@ -269,8 +267,8 @@ MainFrame::MainFrame(const wxString& title, const wxString& vaultPassword)
     Bind(wxEVT_TOGGLEBUTTON, &MainFrame::OnToggleProperties, this, ID_ToggleProperties);
     m_auiManager.Bind(wxEVT_AUI_PANE_CLOSE, &MainFrame::OnPaneClose, this);
     m_notebook->Bind(wxEVT_AUINOTEBOOK_PAGE_CLOSE, &MainFrame::OnNotebookPageClose, this);
-    Bind(wxEVT_MENU, &MainFrame::OnNextTab, this, ID_NextTab);
-    Bind(wxEVT_MENU, &MainFrame::OnPreviousTab, this, ID_PreviousTab);
+    Bind(wxEVT_MENU, &MainFrame::OnNextTab, this, kNextTabCommandId);
+    Bind(wxEVT_MENU, &MainFrame::OnPreviousTab, this, kPreviousTabCommandId);
     ApplyShortcuts();
 }
 
@@ -351,9 +349,9 @@ void MainFrame::ApplyShortcuts()
 {
     wxAcceleratorEntry entries[2];
     entries[0].Set(m_terminalSettings.nextTabAccelFlags, m_terminalSettings.nextTabAccelKeyCode,
-                   ID_NextTab);
+                   kNextTabCommandId);
     entries[1].Set(m_terminalSettings.prevTabAccelFlags, m_terminalSettings.prevTabAccelKeyCode,
-                   ID_PreviousTab);
+                   kPreviousTabCommandId);
     SetAcceleratorTable(wxAcceleratorTable(2, entries));
 }
 

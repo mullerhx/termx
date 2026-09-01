@@ -3,6 +3,15 @@
 #include <wx/wx.h>
 #include <wx/accel.h>
 
+// Shared wxWindowIDs for the configurable next/previous-tab shortcuts.
+// MainFrame binds these to wxEVT_MENU both via its own accelerator table
+// (for when a wx-native control has focus) and as the target TerminalPanel
+// re-fires them as when VTE has focus — see TerminalPanel.cpp, where VTE's
+// own default key handling would otherwise swallow the keystroke before the
+// frame's accelerator table ever saw it.
+constexpr wxWindowID kNextTabCommandId = wxID_HIGHEST + 9001;
+constexpr wxWindowID kPreviousTabCommandId = wxID_HIGHEST + 9002;
+
 struct TerminalSettings
 {
     wxString fontFamily = "Monospace";
