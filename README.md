@@ -61,8 +61,13 @@ cmake --install build --prefix /usr/local
 ```
 
 (omit `--prefix` to use CMake's default install prefix). This installs the
-`termx` binary to `<prefix>/bin`. Installing to a system prefix such as
-`/usr/local` typically requires `sudo`.
+`termx` binary to `<prefix>/bin`, along with a desktop entry and icon
+(`<prefix>/share/applications/termx.desktop`,
+`<prefix>/share/icons/hicolor/128x128/apps/termx.png`) so termx shows up in
+your desktop's application menu — no separate packaging step needed, as long
+as `<prefix>/share` is one of your `XDG_DATA_DIRS` (true by default for both
+`/usr` and `/usr/local`). Installing to a system prefix such as `/usr/local`
+typically requires `sudo`.
 
 ## Per-distro instructions
 

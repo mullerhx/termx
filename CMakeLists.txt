@@ -78,3 +78,23 @@ endif()
 # `cmake --build . --target install` after configuring with
 # -DCMAKE_INSTALL_PREFIX=/some/path) installs the binary to <prefix>/bin.
 install(TARGETS termx RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Desktop-menu entry + icon, so termx shows up in the application menu after
+# installing to a prefix on the system's XDG_DATA_DIRS (/usr and /usr/local
+# both are, by default) — no separate packaging step needed.
+install(FILES termx.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES src/termx_icon.png
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps
+    RENAME termx.png)
+
+# Best-effort: refreshes the icon theme cache so the icon above shows up
+# immediately rather than after the next login/desktop restart. Missing
+# gtk-update-icon-cache (e.g. a minimal container image) isn't an error.
+install(CODE "
+    find_program(GTK_UPDATE_ICON_CACHE gtk-update-icon-cache)
+    if(GTK_UPDATE_ICON_CACHE)
+        execute_process(COMMAND \${GTK_UPDATE_ICON_CACHE} -f -t
+            \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons/hicolor\"
+            ERROR_QUIET)
+    endif()
+")

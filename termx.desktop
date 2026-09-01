@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=termx
+Comment=Dockable terminal emulator with an encrypted SSH/SFTP/FTP connection manager
+Exec=termx
+Icon=termx
+Terminal=false
+StartupWMClass=termx
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;console;ssh;sftp;ftp;
